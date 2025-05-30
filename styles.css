@@ -4,4 +4,32 @@
   border-radius: 3px;
   font-weight: bold;
   box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
-} 
+}
+
+/* CSS-based XP hiding for better performance */
+.leaderboardTable.hide-xp .leaderboarduserPoints {
+  display: none !important;
+}
+
+#incompleteTasks.hide-xp .taskPointsUnlocked {
+  display: none !important;
+}
+
+/* Two column layout improvements */
+#tasksWrapper {
+  display: flex !important;
+  gap: 20px !important;
+  align-items: flex-start !important;
+}
+
+#tasksWrapper #incompleteTasks,
+#tasksWrapper #completedTasks {
+  flex: 1 !important;
+  min-width: 0 !important;
+  max-width: 50% !important;
+}
+
+/* Single lesson mode - ensure only first lesson is visible */
+#incompleteTasks .taskUnlocked:not(:first-child).single-lesson-hidden {
+  display: none !important;
+}
