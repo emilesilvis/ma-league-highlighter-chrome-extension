@@ -1,6 +1,6 @@
 # Privacy Policy for MA League Username Highlighter
 
-**Effective Date:** June 7, 2024
+**Effective Date:** 30 May, 2025
 
 ## 1. Introduction
 MA League Username Highlighter (“the Extension”) is a Chrome browser extension designed to highlight your username in the Math Academy league leaderboard. We value your privacy and are committed to protecting your personal information.
@@ -28,4 +28,4 @@ The Extension does not knowingly collect any information from children under the
 We may update this Privacy Policy from time to time. Any changes will be posted on this page.
 
 ## 8. Contact
-If you have any questions or concerns about this Privacy Policy, please contact us at: [your email address] 
+If you have any questions or concerns about this Privacy Policy, please contact us at: emile@silvis.co.za 
