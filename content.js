@@ -17,10 +17,29 @@ function highlightUsername(username) {
   });
 }
 
-// Initial highlight when page loads
-chrome.storage.sync.get(['username'], function(result) {
+// Function to update zen mode
+function updateZenMode(zenMode) {
+  const elementsToHide = [
+    '#courseProgress',
+    '#estimatedCompletion',
+    '#xpFrame'
+  ];
+
+  elementsToHide.forEach(selector => {
+    const element = document.querySelector(selector);
+    if (element) {
+      element.style.display = zenMode ? 'none' : '';
+    }
+  });
+}
+
+// Initial highlight and zen mode when page loads
+chrome.storage.sync.get(['username', 'zenMode'], function(result) {
   if (result.username) {
     highlightUsername(result.username);
+  }
+  if (result.zenMode) {
+    updateZenMode(result.zenMode);
   }
 });
 
@@ -28,14 +47,19 @@ chrome.storage.sync.get(['username'], function(result) {
 chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
   if (request.action === 'updateHighlight') {
     highlightUsername(request.username);
+  } else if (request.action === 'updateZenMode') {
+    updateZenMode(request.zenMode);
   }
 });
 
 // Watch for dynamic content changes
 const observer = new MutationObserver(function(mutations) {
-  chrome.storage.sync.get(['username'], function(result) {
+  chrome.storage.sync.get(['username', 'zenMode'], function(result) {
     if (result.username) {
       highlightUsername(result.username);
+    }
+    if (result.zenMode) {
+      updateZenMode(result.zenMode);
     }
   });
 });
