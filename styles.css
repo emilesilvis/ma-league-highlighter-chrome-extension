@@ -1,0 +1,7 @@
+.highlighted-username {
+  background-color: #ffeb3b;
+  padding: 2px 5px;
+  border-radius: 3px;
+  font-weight: bold;
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
+} 
