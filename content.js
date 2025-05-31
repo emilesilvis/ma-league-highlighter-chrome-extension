@@ -17,18 +17,7 @@ function highlightUsername(username) {
   });
 }
 
-// Function to show only one lesson at a time
-function updateSingleLessonMode(singleLessonMode) {
-  const incompleteTasks = document.querySelectorAll('#incompleteTasks .taskUnlocked');
-  
-  incompleteTasks.forEach((task, index) => {
-    if (singleLessonMode && index > 0) {
-      task.style.display = 'none';
-    } else {
-      task.style.display = '';
-    }
-  });
-}
+// Function to update zen mode
 function updateZenMode(zenMode) {
   const elementsToHide = [
     '#courseProgress',
@@ -86,8 +75,80 @@ function updateXPVisibility(hideXP) {
   }
 }
 
+// Function to show only one lesson at a time (hide text of other lessons)
+function updateSingleLessonMode(singleLessonMode) {
+  const incompleteTasks = document.querySelectorAll('#incompleteTasks .taskUnlocked');
+  
+  let lessonCount = 0;
+  
+  incompleteTasks.forEach((task) => {
+    // Check if this is a lesson (not a review)
+    const taskTypeElement = task.querySelector('.taskTypeUnlocked');
+    const isLesson = taskTypeElement && taskTypeElement.textContent.trim() === 'Lesson';
+    
+    if (isLesson) {
+      lessonCount++;
+      
+      if (singleLessonMode && lessonCount > 1) {
+        // Hide only the lesson name/text, keep everything else
+        const taskNameElement = task.querySelector('.taskNameUnlocked');
+        if (taskNameElement) {
+          taskNameElement.style.display = 'none';
+        }
+      } else {
+        // Show the lesson name normally
+        const taskNameElement = task.querySelector('.taskNameUnlocked');
+        if (taskNameElement) {
+          taskNameElement.style.display = '';
+        }
+      }
+    }
+    // Don't touch reviews - they should always be fully visible
+  });
+}
+
+// Function to move reviews to the top
+function updateReviewsToTop(reviewsToTop) {
+  const incompleteTasks = document.querySelector('#incompleteTasks');
+  if (!incompleteTasks) return;
+  
+  if (reviewsToTop) {
+    console.log('Moving reviews to top');
+    
+    // Find all review tasks
+    const allTasks = Array.from(incompleteTasks.querySelectorAll('.taskUnlocked'));
+    const reviewTasks = [];
+    const nonReviewTasks = [];
+    
+    allTasks.forEach(task => {
+      const taskTypeElement = task.querySelector('.taskTypeUnlocked');
+      if (taskTypeElement && taskTypeElement.textContent.trim() === 'Review') {
+        reviewTasks.push(task);
+      } else {
+        nonReviewTasks.push(task);
+      }
+    });
+    
+    console.log(`Found ${reviewTasks.length} reviews and ${nonReviewTasks.length} other tasks`);
+    
+    // Remove all tasks from their current positions
+    allTasks.forEach(task => task.remove());
+    
+    // Add reviews first, then other tasks
+    reviewTasks.forEach(task => incompleteTasks.appendChild(task));
+    nonReviewTasks.forEach(task => incompleteTasks.appendChild(task));
+    
+  } else {
+    console.log('Restoring original task order');
+    // We could implement order restoration, but for now, just refresh the page
+    // since Math Academy likely loads tasks in a specific order
+  }
+}
+
 // Initial highlight, zen mode, and other settings when page loads
-chrome.storage.sync.get(['username', 'zenMode', 'hideAllXP', 'singleLessonMode', 'twoColumnLayout'], function(result) {
+chrome.storage.sync.get(['username', 'zenMode', 'hideAllXP', 'singleLessonMode', 'reviewsToTop'], function(result) {
+  console.log('Loading initial settings:', result);
+  
   if (result.username) {
     highlightUsername(result.username);
   }
@@ -97,16 +158,18 @@ chrome.storage.sync.get(['username', 'zenMode', 'hideAllXP', 'singleLessonMode',
   if (result.hideAllXP) {
     updateXPVisibility(result.hideAllXP);
   }
+  if (result.reviewsToTop) {
+    updateReviewsToTop(result.reviewsToTop);
+  }
   if (result.singleLessonMode) {
     updateSingleLessonMode(result.singleLessonMode);
-  }
-  if (result.twoColumnLayout) {
-    updateTwoColumnLayout(result.twoColumnLayout);
   }
 });
 
 // Listen for messages from popup
 chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
+  console.log('Received message:', request);
+  
   if (request.action === 'updateHighlight') {
     highlightUsername(request.username);
   } else if (request.action === 'updateZenMode') {
@@ -115,14 +178,14 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
     updateXPVisibility(request.hideAllXP);
   } else if (request.action === 'updateSingleLessonMode') {
     updateSingleLessonMode(request.singleLessonMode);
-  } else if (request.action === 'updateTwoColumnLayout') {
-    updateTwoColumnLayout(request.twoColumnLayout);
+  } else if (request.action === 'updateReviewsToTop') {
+    updateReviewsToTop(request.reviewsToTop);
   }
 });
 
 // Watch for dynamic content changes
 const observer = new MutationObserver(function(mutations) {
-  chrome.storage.sync.get(['username', 'zenMode', 'hideAllXP', 'singleLessonMode', 'twoColumnLayout'], function(result) {
+  chrome.storage.sync.get(['username', 'zenMode', 'hideAllXP', 'singleLessonMode', 'reviewsToTop'], function(result) {
     if (result.username) {
       highlightUsername(result.username);
     }
@@ -132,11 +195,11 @@ const observer = new MutationObserver(function(mutations) {
     if (result.hideAllXP) {
       updateXPVisibility(result.hideAllXP);
     }
+    if (result.reviewsToTop) {
+      updateReviewsToTop(result.reviewsToTop);
+    }
     if (result.singleLessonMode) {
       updateSingleLessonMode(result.singleLessonMode);
-    }
-    if (result.twoColumnLayout) {
-      updateTwoColumnLayout(result.twoColumnLayout);
     }
   });
 });

@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', function() {
   // Load saved settings
-  chrome.storage.sync.get(['username', 'zenMode', 'hideAllXP', 'singleLessonMode', 'twoColumnLayout'], function(result) {
+  chrome.storage.sync.get(['username', 'zenMode', 'hideAllXP', 'singleLessonMode', 'reviewsToTop'], function(result) {
     if (result.username) {
       document.getElementById('username').value = result.username;
     }
@@ -13,8 +13,8 @@ document.addEventListener('DOMContentLoaded', function() {
     if (result.singleLessonMode) {
       document.getElementById('singleLessonMode').checked = result.singleLessonMode;
     }
-    if (result.twoColumnLayout) {
-      document.getElementById('twoColumnLayout').checked = result.twoColumnLayout;
+    if (result.reviewsToTop) {
+      document.getElementById('reviewsToTop').checked = result.reviewsToTop;
     }
   });
 
@@ -61,12 +61,12 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   });
 
-  // Handle two column layout toggle
-  document.getElementById('twoColumnLayout').addEventListener('change', function() {
-    const twoColumnLayout = this.checked;
-    chrome.storage.sync.set({ twoColumnLayout: twoColumnLayout }, function() {
+  // Handle reviews to top toggle
+  document.getElementById('reviewsToTop').addEventListener('change', function() {
+    const reviewsToTop = this.checked;
+    chrome.storage.sync.set({ reviewsToTop: reviewsToTop }, function() {
       chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
-        chrome.tabs.sendMessage(tabs[0].id, { action: 'updateTwoColumnLayout', twoColumnLayout: twoColumnLayout });
+        chrome.tabs.sendMessage(tabs[0].id, { action: 'updateReviewsToTop', reviewsToTop: reviewsToTop });
       });
     });
   });
